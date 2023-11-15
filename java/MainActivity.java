@@ -15,6 +15,8 @@ public class MainActivity extends AppCompatActivity {
     private FragmentManager fragmentManager = getSupportFragmentManager();
     private storyboard_todolist fragmentSearch = new storyboard_todolist();
     private chatbot_board fragmentChart = new chatbot_board();
+    private HomeMain fragmentHome = new HomeMain();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
