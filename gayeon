@@ -6,3 +6,23 @@ getSupportActionBar().setTitle("calendar");
 <style name="Theme.Final_project" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <item name="colorPrimary">#A9BCF5</item>
 </style>
+
+- 뒤로가기 버튼 추가 - res/menu/actionbar_actions.xml
+<?xml version ="1.0" encoding ="utf-8"?><!--  Learn More about how to use App Actions: https://developer.android.com/guide/actions/index.html -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/back"
+        android:icon="@drawable/back"
+        android:title="Back"
+        app:showAsAction="ifRoom"/>
+</menu>
+
+- 액션바 추가 - 각각의 .java에 추가
+@Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.actionbar_actions, menu) ;
+
+        return true ;
+    }
+
+- 이벤트 처리(버튼 클릭)
