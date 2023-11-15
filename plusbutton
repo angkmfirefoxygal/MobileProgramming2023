@@ -1,0 +1,56 @@
+// activity_main.xml  - drawble에 plus 이름으로 사진 넣어야됨    
+<ImageButton
+        android:id="@+id/imageButton"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:src="@drawable/plus"
+        android:background="@color/white"
+        android:scaleType="fitXY"
+        android:layout_marginLeft="310dp"
+        android:layout_marginTop="310dp"/>
+
+// Mainactivity.java - 빨간 줄 뜨는 부분 ctrl+alt 눌러서 import 해줘야됨
+public class MainActivity extends AppCompatActivity {
+    ImageButton plusbtn; // 버튼 선언
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        plusbtn = findViewById(R.id.imageButton); // 객체 생성
+        plusbtn.setOnClickListener(new View.OnClickListener() {  // 리스너 함수
+            @Override
+            public void onClick(View v) {
+                final PopupMenu popupMenu = new PopupMenu(getApplicationContext(),v);
+                getMenuInflater().inflate(R.menu.popupmenu,popupMenu.getMenu());
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem menuItem) {
+                        if (menuItem.getItemId() == R.id.menu_todolist){
+                            Toast.makeText(MainActivity.this, "to do list", Toast.LENGTH_SHORT).show();
+                        }else if (menuItem.getItemId() == R.id.menu_diary){
+                            Toast.makeText(MainActivity.this, "diary", Toast.LENGTH_SHORT).show();
+                        }else {
+                            Toast.makeText(MainActivity.this, "etc", Toast.LENGTH_SHORT).show();
+                        }
+
+                        return false;
+                    }
+                });
+                popupMenu.show();
+                //onClick();
+            }
+        });
+    }
+}
+
+// res/menu/popupmenu.xml - res 밑에 menu directory 만들어서 xml파일 생성해야
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/menu_todolist"
+        android:title="to do list"/>
+    <item
+        android:id="@+id/menu_diary"
+        android:title="diary"/>
+</menu>
