@@ -1,0 +1,145 @@
+⭐⭐⭐⭐⭐<!--activity_main-->⭐⭐⭐⭐⭐
+
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+   <LinearLayout
+       android:id="@+id/bottom_section"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:layout_alignParentBottom="true"
+       android:padding="10dp">
+
+       <EditText
+           android:id="@+id/edit_text"
+           android:layout_width="330dp"
+           android:layout_height="wrap_content"
+           android:layout_marginRight="10dp"
+           android:hint="추가할 일정을 입력하세요!"/>
+
+       <!--일정추가 버튼-->
+       <androidx.appcompat.widget.AppCompatButton
+           android:id="@+id/add_btn"
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:text="추가">
+
+       </androidx.appcompat.widget.AppCompatButton>
+   </LinearLayout>
+
+    <!--배경색상-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/bottom_section"
+        android:background="#eee">
+
+        <ListView
+            android:id="@+id/list_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+    </LinearLayout>
+</RelativeLayout>
+
+
+⭐⭐⭐⭐⭐res>layout>list_item.xml⭐⭐⭐⭐⭐
+<?xml version="1.0" encoding="utf-8"?>
+<TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="20dp"
+    android:text="할 일 텍스트"
+    android:textAppearance="@style/TextAppearance.AppCompat.Large"
+    android:textStyle="bold">
+</TextView>
+
+⭐⭐⭐⭐⭐MainActivity⭐⭐⭐⭐⭐
+package com.example.todolist;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.graphics.Paint;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import java.util.ArrayList;
+
+public class MainActivity extends AppCompatActivity {
+    //할일을 ArrayList에 등록, ArrayList는 어뎁터에 적용, 어뎁터는 리스트뷰에 적용->할일 등록시 화면에 할일 나옴
+    //리스트 아이템 클릭 시, 취소선 생김
+
+    ArrayList<String> toDoList;
+    ArrayAdapter<String> adapter;
+    ListView listView;
+    EditText editText;
+
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+
+        //초기화
+        toDoList=new ArrayList<>();
+        adapter=new ArrayAdapter<String>(this, R.layout.list_item, toDoList);
+        listView = findViewById(R.id.list_view);
+        editText=findViewById(R.id.edit_text);
+
+        //어뎁터 적용
+        listView.setAdapter(adapter);
+
+        //할 일 추가 버튼 이벤트
+        Button addBtn = findViewById(R.id.add_btn);
+        addBtn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view){
+                addItemToList();
+            }
+        });
+
+        //리스트 아이템 클릭 했을 때 이벤트
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                TextView textView=(TextView) view;
+                //취소선 넣기
+                textView.setPaintFlags(textView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            }
+        });
+    }
+    //onCreate
+
+    //할 일 추가
+    public void addItemToList(){
+
+        //아이템 등록
+        toDoList.add(editText.getText().toString());
+
+        //적용
+        adapter.notifyDataSetChanged();;
+
+        //입력창 초기화
+        editText.setText("");
+
+    }
+}
+
+
+
+
