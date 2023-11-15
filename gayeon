@@ -1,6 +1,8 @@
-액션바 text 바꾸기 (각 .java에 아래 코드 넣으면 됨 - 해당 페이지의 .java읽어와서 text바뀜) 
+ * 액션바 
+- text 바꾸기 (각 .java에 아래 코드 넣으면 됨 - 해당 페이지의 .java읽어와서 text바뀜) 
 getSupportActionBar().setTitle("calendar");
-컬러 바꾸기 - res/values/themes/themes.xml (item만 추가하면 됨)
+
+- 컬러 바꾸기 - res/values/themes/themes.xml (item만 추가하면 됨)
 <style name="Theme.Final_project" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <item name="colorPrimary">#A9BCF5</item>
 </style>
