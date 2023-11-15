@@ -1,2 +1,2 @@
-메뉴바 text 바꾸기 (각 .java에 아래 코드 넣으면 됨) 
+액션바 text 바꾸기 (각 .java에 아래 코드 넣으면 됨) 
 getSupportActionBar().setTitle("calendar");
