@@ -39,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
                 transaction.replace(R.id.menu_frame_layout, fragmentSearch).commitAllowingStateLoss();
             } else if (menuItem.getItemId()==R.id.chat_bot) {
                 transaction.replace(R.id.menu_frame_layout,fragmentChart).commitAllowingStateLoss();
+            }else if(menuItem.getItemId()==R.id.home){
+                transaction.replace(R.id.menu_frame_layout, fragmentHome).commitAllowingStateLoss();
             }
 
 
