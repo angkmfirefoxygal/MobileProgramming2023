@@ -25,4 +25,14 @@ getSupportActionBar().setTitle("calendar");
         return true ;
     }
 
-- 이벤트 처리(버튼 클릭)
+- 이벤트 처리(버튼 클릭) - 각각의 .java에 추가
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.back){
+            // 전 액티비티 인텐트
+            return true;
+        }
+        else 
+            return super.onOptionsItemSelected(item);
+    }
+}
