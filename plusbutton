@@ -53,4 +53,7 @@ public class MainActivity extends AppCompatActivity {
     <item
         android:id="@+id/menu_diary"
         android:title="diary"/>
+    <item
+        android:id="@+id/library"
+        android:title="library" />
 </menu>
