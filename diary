@@ -1,0 +1,88 @@
+//MainActivity.java
+CalendarView calendar;
+    ImageButton plusbtn;
+    String date;
+    @Override
+protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        calendar = findViewById(R.id.calendarView);
+        calendar.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
+            @Override
+            public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
+                date = Integer.toString(year) + " . " + Integer.toString(month) + " . " + Integer.toString(dayOfMonth);
+            }
+        });
+        plusbtn = findViewById(R.id.imageButton);
+        plusbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final PopupMenu popupMenu = new PopupMenu(getApplicationContext(),v);
+                getMenuInflater().inflate(R.menu.popupmenu,popupMenu.getMenu());
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem menuItem) {
+                        if (menuItem.getItemId() == R.id.menu_todolist){
+                            Toast.makeText(MainActivity.this, "to do list", Toast.LENGTH_SHORT).show();
+                        }else if (menuItem.getItemId() == R.id.menu_diary){
+                            Intent intent = new Intent(MainActivity.this, DiaryActivity.class);
+                            Bundle extras = new Bundle();
+                            extras.putString("date", date);
+                            intent.putExtras(extras);
+                            startActivity(intent);
+                        }else {
+                            Toast.makeText(MainActivity.this, "etc", Toast.LENGTH_SHORT).show();
+                        }
+
+                        return false;
+                    }
+                });
+                popupMenu.show();
+            }
+        });
+        getSupportActionBar().setTitle("calendar");
+
+    }
+
+
+// DiaryActivity.java
+public class DiaryActivity extends AppCompatActivity {
+    EditText diary;
+    String diary_context;
+    Button savebtn;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.diary_layout);
+
+        Bundle extras = getIntent().getExtras();
+
+        diary = (EditText) findViewById(R.id.editText);
+        savebtn = (Button) findViewById(R.id.savebutton);
+
+        savebtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                diary_context = diary.getText().toString();
+
+            }
+        });
+
+        getSupportActionBar().setTitle( extras.getString("date") + "diary"); // main에서 받아온 date
+    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.actionbar_actions, menu) ;
+
+        return true ;
+    }
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.back){
+            startActivity(new Intent(DiaryActivity.this, MainActivity.class));
+            return true;
+        }
+        else
+            return super.onOptionsItemSelected(item);
+    }
+}
