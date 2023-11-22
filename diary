@@ -30,8 +30,12 @@ protected void onCreate(Bundle savedInstanceState) {
                             extras.putString("date", date);
                             intent.putExtras(extras);
                             startActivity(intent);
-                        }else {
-                            Toast.makeText(MainActivity.this, "etc", Toast.LENGTH_SHORT).show();
+                        }else if (menuItem.getItemId() == R.id.library){
+                            Intent intent = new Intent(MainActivity.this, LibraryActivity.class);
+                            Bundle extras = new Bundle();
+                            extras.putString("date", date);
+                            intent.putExtras(extras);
+                            startActivity(intent);
                         }
 
                         return false;
