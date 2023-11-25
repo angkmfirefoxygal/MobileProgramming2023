@@ -94,6 +94,7 @@ public class SMULib_Activity extends AppCompatActivity {
 
         smu_webview = (WebView) findViewById(R.id.smu_webview);
         smu_webview.getSettings().setJavaScriptEnabled(true);
+        smu_webview.getSettings().setJavaScriptEnabled(true);
         smu_webview.loadUrl(smu_url);
         smu_webview.setWebChromeClient(new WebChromeClient());
         smu_webview.setWebViewClient(new WebViewClientClass());
