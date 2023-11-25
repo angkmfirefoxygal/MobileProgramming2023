@@ -1,0 +1,360 @@
+//⭐⭐⭐⭐manifests⭐⭐⭐⭐
+//AndroidManifest.xml
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+
+    <uses-permission android:name="android.permission.INTERNET"/>       //**이 줄만 추가하면 됨**
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Select_library"
+        tools:targetApi="31">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
+
+//⭐⭐⭐⭐java⭐⭐⭐⭐
+//MainActivity
+package com.example.select_library;
+
+import androidx.appcompat.app.AppCompatActivity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.webkit.WebChromeClient;
+import android.webkit.WebView;
+import android.widget.Button;
+
+public class MainActivity extends AppCompatActivity {
+    private Button smu_library = findViewById(R.id.smu_library);
+    private Button ys_library = findViewById(R.id.ys_library);
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        smu_library.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, SMULib_Activity.class);
+                startActivity(intent);
+            }
+        });
+
+        ys_library.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, YSLib_Activity.class);
+                startActivity(intent);
+            }
+        });
+
+    }
+}
+
+
+//⭐⭐⭐⭐java⭐⭐⭐⭐
+//SMULib_Activity
+package com.example.select_library;
+
+import android.os.Bundle;
+import android.view.KeyEvent;
+import android.webkit.WebChromeClient;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+public class SMULib_Activity extends AppCompatActivity {
+
+    private WebView smu_webview;
+    private String smu_url = "https://www.youtube.com/watch?v=R7xt81O17Ew";
+
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.smu_library);
+
+        smu_webview = (WebView) findViewById(R.id.smu_webview);
+        smu_webview.getSettings().setJavaScriptEnabled(true);
+        smu_webview.loadUrl(smu_url);
+        smu_webview.setWebChromeClient(new WebChromeClient());
+        smu_webview.setWebViewClient(new WebViewClientClass());
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if ((keyCode == KeyEvent.KEYCODE_BACK)&& smu_webview.canGoBack()){
+            smu_webview.goBack();
+            return true;
+        }
+
+        return super.onKeyDown(keyCode, event);
+    }
+
+    private class WebViewClientClass extends WebViewClient {
+        @Override
+        public boolean shouldOverrideUrlLoading(WebView view, String url) {
+            view.loadUrl(smu_url);
+            return true;
+        }
+    }
+}
+//⭐⭐⭐⭐java⭐⭐⭐⭐ 
+//YSLib_Activity
+package com.example.select_library;
+
+import android.os.Bundle;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+public class YSLib_Activity extends AppCompatActivity {
+
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.ys_library);
+    }
+}
+
+//⭐⭐⭐⭐layout⭐⭐⭐⭐ 
+//activity_main.xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:id="@+id/background"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#FFFFFF"
+    tools:context=".MainActivity"
+    tools:ignore="ExtraText">
+
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="150dp"
+        android:layout_marginBottom="100dp"
+        android:text="❄️도서관 자리 예약 시스템❄️️"
+        android:textSize="20dp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="20dp"
+        android:text="도서관 선택"
+        android:textColor="#A0A0A0"
+        android:textSize="18dp"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/smu_library"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:backgroundTint="#CCE5FF"
+            android:text="숙명여대 중앙도서관"
+            android:layout_marginLeft="20dp"
+            android:textColor="@color/black"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/ys_library"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:backgroundTint="#CCE5FF"
+            android:text="서울 용산도서관"
+            android:layout_marginRight="20dp"
+            android:textColor="@color/black"
+            android:textStyle="bold"/>
+    </LinearLayout>
+
+</LinearLayout>
+
+//⭐⭐⭐⭐layout⭐⭐⭐⭐ 
+//smu_library.xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="📖숙명여대 중앙도서관"
+        android:padding="20dp"
+        android:textColor="@color/black"
+        android:textSize="20dp"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/imageViewa"
+            android:layout_width="160dp"
+            android:layout_height="160dp"
+            android:layout_margin="10dp"
+            android:src="@drawable/a" />
+
+        <ImageView
+            android:id="@+id/imageViewb"
+            android:layout_width="160dp"
+            android:layout_height="160dp"
+            android:layout_margin="10dp"
+            android:src="@drawable/b" />
+
+        <ImageView
+            android:id="@+id/imageViewc"
+            android:layout_width="160dp"
+            android:layout_height="160dp"
+            android:layout_margin="10dp"
+            android:src="@drawable/c" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:text="숙명여자대학교 중앙도서관은 총 연면적 16,740㎡로 지상 6층, 지하1층의 중앙도서관과 증축공간의 지하 1 · 2층 및 법학전문도서관, 음악도서실의 2개 분관 · 분실로 구성된
+복합문화공간으로서 최첨단 인프라를 갖춘 디지털도서관 입니다." />
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/smu_video"
+            android:layout_width="175dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:text="도서관 홈페이지" />
+
+        <Button
+            android:id="@+id/smu_select"
+            android:layout_width="175dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="20dp"
+            android:text="자리 예약하기" />
+
+    </LinearLayout>
+
+    <WebView
+        android:id="@+id/smu_webview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></WebView>
+
+</LinearLayout>
+
+//⭐⭐⭐⭐layout⭐⭐⭐⭐ 
+//ys_library.xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="📖서울 용산도서관"
+        android:padding="20dp"
+        android:textColor="@color/black"
+        android:textSize="20dp"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/imageViewd"
+            android:layout_width="160dp"
+            android:layout_height="160dp"
+            android:layout_margin="10dp"
+            android:src="@drawable/d" />
+
+        <ImageView
+            android:id="@+id/imageViewf"
+            android:layout_width="160dp"
+            android:layout_height="160dp"
+            android:layout_margin="10dp"
+            android:src="@drawable/f" />
+
+        <ImageView
+            android:id="@+id/imageViewe"
+            android:layout_width="160dp"
+            android:layout_height="160dp"
+            android:layout_margin="10dp"
+            android:src="@drawable/e" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:text="용산도서관은 책으로 소통하고 독서를 통해 시민의 힘을 키우는 지식 공유와 정보서비스의 중심기관이자 독서문화 활동과 독서교육서비스의 중심기관, 평생교육 참여와 평생학습서비스의 중심기관입니다." />
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/smu_video"
+            android:layout_width="175dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:text="도서관 홈페이지" />
+
+        <Button
+            android:id="@+id/smu_select"
+            android:layout_width="175dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="20dp"
+            android:text="자리 예약하기" />
+
+    </LinearLayout>
+
+</LinearLayout>
