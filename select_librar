@@ -1,0 +1,170 @@
+//안드로이드매니페스트
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Select_library_reservation"
+        tools:targetApi="31">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".ReservationActivity"></activity>           //****이 줄 하나만 추가하면 돼요!
+    </application>
+
+</manifest>
+
+//메인액티비티
+package com.example.select_library_reservation;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Bundle;
+// MainActivity.java
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.GridView;
+import android.widget.Toast;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class MainActivity extends AppCompatActivity {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        GridView gridView = findViewById(R.id.gridView);
+        String[] seats = new String[36];
+        for (int i = 0; i < 36; i++) {
+            seats[i] = String.valueOf(i + 1);
+        }
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, seats);
+        gridView.setAdapter(adapter);
+
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                new AlertDialog.Builder(MainActivity.this)
+                        .setTitle("자리 예약")
+                        .setMessage((position + 1) + "번 자리를 예약하시겠습니까?")
+                        .setPositiveButton("확인", (dialog, which) -> {
+                            Intent intent = new Intent(MainActivity.this, ReservationActivity.class);
+                            intent.putExtra("seatNumber", position + 1);
+                            startActivity(intent);
+                        })
+                        .setNegativeButton("취소", null)
+                        .show();
+            }
+        });
+    }
+}
+
+
+//ReservationActivity.java
+  package com.example.select_library_reservation;
+
+// ReservationActivity.java
+
+import android.os.Bundle;
+import android.widget.TextView;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class ReservationActivity extends AppCompatActivity {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_reservation);
+
+        int seatNumber = getIntent().getIntExtra("seatNumber", 0);
+        TextView textView = findViewById(R.id.textView);
+        textView.setText(seatNumber + "번 자리 예약 완료.");
+    }
+}
+
+//activity_main.xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="자리 선택 페이지"/>
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".MainActivity">
+
+        <GridView
+            android:id="@+id/gridView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentBottom="true"
+            android:background="#ffeeeeee"
+            android:layout_marginBottom="0dp"
+            android:horizontalSpacing="10dp"
+            android:numColumns="6"
+            android:padding="10dp"
+            android:verticalSpacing="10dp" />
+
+    </RelativeLayout>
+
+</LinearLayout>
+
+//activity_reservation.xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="예약 완료 페이지"/>
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".ReservationActivity">
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:textSize="24sp" />
+
+    </RelativeLayout>
+
+</LinearLayout>
+  
+
