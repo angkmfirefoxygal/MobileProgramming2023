@@ -1,0 +1,476 @@
+⭐⭐⭐AmdroidManifest.xml⭐⭐⭐
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-feature android:name="android.hardware.camera" />  ⭐
+    <uses-permission android:name="android.permission.CAMERA" /> ⭐
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> ⭐
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" /> ⭐
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Final_project"
+        tools:targetApi="31">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".DiaryActivity"
+            android:exported="false" />              // 추가
+        <activity
+            android:name=".ChatActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SubActivity"
+            android:exported="false" />
+        <activity android:name=".Library" />
+        <activity android:name=".ReservationActivity" />
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="smu.ai.final_project"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>                                         //provider 태그 추가
+    </application>
+</manifest>
+⭐⭐⭐DiaryActivity.java⭐⭐⭐
+package smu.ai.final_project;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.FileProvider;
+
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
+import static android.os.Environment.DIRECTORY_PICTURES;
+public class DiaryActivity extends AppCompatActivity {
+
+    EditText diary;
+    String diary_context;
+    Button savebtn, Takepicbtn, Callpicbtn;
+    ImageView ivPicture;
+
+    private static final int REQUEST_IMAGE_CAPTURE = 672;
+    private String imageFilePath;
+    private Uri photoUri;
+    private MediaScanner mMediaScanner;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_diary);
+
+        Bundle extras = getIntent().getExtras();
+        getSupportActionBar().setTitle( extras.getString("date") + " diary"); // main에서 받아온 date
+
+        Button button1 = findViewById(R.id.button1); //xml에서 생성한 id 매치
+        Button button2 = findViewById(R.id.button2);
+        Button button3 = findViewById(R.id.button3);
+        //버튼에 클릭 이벤트 적용
+        button1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //인텐트 선언 및 정의
+                Intent intent = new Intent(DiaryActivity.this, SubActivity.class);
+
+                //액티비티 이동
+                startActivity(intent);
+            }
+        });
+
+        button2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(DiaryActivity.this, MainActivity.class);
+
+                startActivity(intent);
+
+            }
+        });
+
+
+        button3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(DiaryActivity.this, ChatActivity.class);
+
+                startActivity(intent);
+            }
+        });
+
+        diary = (EditText) findViewById(R.id.editText);
+        savebtn = (Button) findViewById(R.id.savebutton);
+
+        savebtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                diary_context = diary.getText().toString();
+            }
+        });
+
+        // 카메라
+        mMediaScanner = MediaScanner.getInstance(getApplicationContext());
+
+        Takepicbtn = (Button) findViewById(R.id.btnTakePicture);
+        ivPicture = (ImageView) findViewById(R.id.ivPicture);
+        Callpicbtn = (Button) findViewById(R.id.btncallpic);
+
+        ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.CAMERA}, 1);
+
+        Takepicbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ActivityCompat.checkSelfPermission(DiaryActivity.this, android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+
+                }
+                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                if (intent.resolveActivity(getPackageManager()) != null) {
+                    File photoFile = null;
+                    try {
+                        photoFile = createImageFile();
+                    } catch (IOException e) {
+                    }
+                    if (photoFile != null){
+                        photoUri = FileProvider.getUriForFile(getApplicationContext(), getPackageName(), photoFile);
+                        intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
+                        startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);
+                    }
+                }
+            }
+        });
+        Callpicbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_PICK);
+                intent.setType("image/*");
+                startActivityForResult(intent, 1);
+            }
+        });
+
+    }
+
+    private File createImageFile() throws IOException{
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "TEST_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,
+                ".jpg",
+                storageDir
+        );
+        imageFilePath = image.getAbsolutePath();
+        return image;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK){
+            Bitmap bitmap = BitmapFactory.decodeFile(imageFilePath);
+            ExifInterface exif = null;
+
+            try {
+                exif = new ExifInterface(imageFilePath);
+            } catch (IOException e){
+                e.printStackTrace();
+            }
+
+            int exifOrientation;
+            int exifDegree;
+
+            if (exif != null){
+                exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+                exifDegree = exifOrientationToDegress(exifOrientation);
+            } else {
+                exifDegree = 0;
+            }
+            String result = "";
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HHmmss", Locale.getDefault());
+            Date curDate = new Date(System.currentTimeMillis());
+            String filename = formatter.format(curDate);
+            String strFolderName = Environment.getExternalStoragePublicDirectory(DIRECTORY_PICTURES) + File.separator + "mobile_poject" + File.separator;
+            File file = new File(strFolderName);
+            if (!file.exists())
+                file.mkdirs();
+            File f = new File(strFolderName + "/" + filename + ".png");
+            result = f.getPath();
+
+            FileOutputStream fout = null;
+            try {
+                fout = new FileOutputStream(f);
+            } catch (FileNotFoundException e){
+                e.printStackTrace();
+                result = "Save Error fout";
+            }
+            rotate(bitmap, exifDegree).compress(Bitmap.CompressFormat.PNG, 70, fout);
+            try {
+                fout.flush();
+            } catch (IOException e){
+                e.printStackTrace();
+            }
+            try {
+                fout.close();
+                mMediaScanner.mediaScanning(strFolderName + "/" + filename + ".png");
+            } catch (IOException e){
+                e.printStackTrace();
+                result = "File close Error";
+            }
+            ivPicture.setImageBitmap(rotate(bitmap, exifDegree));
+
+        }
+        if (requestCode == 1){
+            if (resultCode == RESULT_OK){
+                Uri uri = data.getData();
+                ivPicture.setImageURI(uri);
+            }
+        }
+    }
+    private int exifOrientationToDegress(int exifOrientation){
+        if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_90){
+            return 90;
+        } else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_180){
+            return 180;
+        } else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_270){
+            return 270;
+        }
+        return 0;
+    }
+    private Bitmap rotate(Bitmap bitmap, float degree) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(degree);
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.actionbar_actions, menu) ;
+
+        return true ;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.back){
+            startActivity(new Intent(DiaryActivity.this, MainActivity.class));
+            return true;
+        }
+        else
+            return super.onOptionsItemSelected(item);
+    }
+}
+⭐⭐⭐MediaScanner.java⭐⭐⭐
+package smu.ai.final_project;
+
+import android.content.Context;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
+import android.text.TextUtils;
+
+public class MediaScanner {
+    private Context mContext;
+    private static volatile MediaScanner mMediaInstance = null;
+    private MediaScannerConnection mMediaScanner;
+
+    private String mFilePath;
+
+    public static MediaScanner getInstance(Context context){
+        if(null == context)
+            return null;
+        if(null == mMediaInstance)
+            return mMediaInstance = new MediaScanner(context);
+        return mMediaInstance;
+    }
+    public static void releaseInstance() {
+        if (null != mMediaInstance){
+            mMediaInstance = null;
+        }
+    }
+    private MediaScanner(Context context){
+        mContext = context;
+        mFilePath = "";
+
+        MediaScannerConnection.MediaScannerConnectionClient mediaScancClient;
+        mediaScancClient = new MediaScannerConnection.MediaScannerConnectionClient() {
+            @Override
+            public void onMediaScannerConnected() {
+                mMediaScanner.scanFile(mFilePath, null);
+            }
+
+            @Override
+            public void onScanCompleted(String path, Uri uri) {
+                //completed
+                mMediaScanner.disconnect();
+            }
+        };
+        mMediaScanner = new MediaScannerConnection(mContext, mediaScancClient);
+    }
+    public void mediaScanning(final String path) {
+        if (TextUtils.isEmpty(path))
+            return;
+        mFilePath = path;
+        if (!mMediaScanner.isConnected())
+            mMediaScanner.connect();
+    }
+}
+⭐⭐⭐activity_diary.xml⭐⭐⭐
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    tools:context=".DiaryActivity">
+
+    <LinearLayout
+        android:id="@+id/linearLayout1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+    <EditText
+        android:id="@+id/editText"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:ems="100"
+        android:inputType="text"
+        android:hint="일기를 입력하시오 : " />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/linearLayout1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <Button
+            android:id="@+id/savebutton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Save" />
+
+        <Button
+            android:id="@+id/btnTakePicture"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="사진 찍기" />
+
+        <Button
+            android:id="@+id/btncallpic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="사진 불러오기" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/linearLayout2"
+        app:layout_constraintStart_toStartOf="parent">
+    <ImageView
+        android:id="@+id/ivPicture"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_launcher_foreground" />
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/linearLayout4"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <Button
+            android:id="@+id/button1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="list" />
+
+        <Button
+            android:id="@+id/button2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Home" />
+
+        <Button
+            android:id="@+id/button3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Chat" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+⭐⭐⭐file_paths.xml⭐⭐⭐
+<?xml version ="1.0" encoding ="utf-8"?><!--  Learn More about how to use App Actions: https://developer.android.com/guide/actions/index.html -->
+<paths xmlns:android="http://schemas.android.com/apk/res/android" >
+    <cache-path
+        name="cache"
+        path="." />
+    <files-path
+        name="files"
+        path="." />
+    <external-path
+        name="external"
+        path="." />
+    <external-cache-path
+        name="external-cache"
+        path="." />
+    <external-files-path
+        name="external-files"
+        path="." />
+</paths>
