@@ -455,7 +455,7 @@ public class MediaScanner {
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-⭐⭐⭐file_paths.xml⭐⭐⭐
+⭐⭐⭐@xml/file_paths.xml⭐⭐⭐
 <?xml version ="1.0" encoding ="utf-8"?><!--  Learn More about how to use App Actions: https://developer.android.com/guide/actions/index.html -->
 <paths xmlns:android="http://schemas.android.com/apk/res/android" >
     <cache-path
