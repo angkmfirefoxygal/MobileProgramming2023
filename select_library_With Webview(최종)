@@ -233,3 +233,148 @@ public class SMULib_Activity extends AppCompatActivity {
 
 
 </LinearLayout>
+
+<<⭐⭐⭐YSLib_Activity.java⭐⭐⭐>>
+package com.example.a6_1_1reservationsite;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Bundle;
+
+public class YSLib_Activity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_yslib);
+    }
+}
+
+<<⭐⭐⭐activity_yslib.xml⭐⭐⭐>>
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="📖서울 용산도서관"
+        android:padding="20dp"
+        android:textColor="@color/black"
+        android:textSize="20dp"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/imageViewd"
+            android:layout_width="160dp"
+            android:layout_height="160dp"
+            android:layout_margin="10dp"
+            android:src="@drawable/d" />
+
+        <ImageView
+            android:id="@+id/imageViewf"
+            android:layout_width="160dp"
+            android:layout_height="160dp"
+            android:layout_margin="10dp"
+            android:src="@drawable/f" />
+
+        <ImageView
+            android:id="@+id/imageViewe"
+            android:layout_width="160dp"
+            android:layout_height="160dp"
+            android:layout_margin="10dp"
+            android:src="@drawable/e" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:text="용산도서관은 책으로 소통하고 독서를 통해 시민의 힘을 키우는 지식 공유와 정보서비스의 중심기관이자 독서문화 활동과 독서교육서비스의 중심기관, 평생교육 참여와 평생학습서비스의 중심기관입니다." />
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/smu_video"
+            android:layout_width="175dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:text="도서관 홈페이지" />
+
+        <Button
+            android:id="@+id/smu_select"
+            android:layout_width="175dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="20dp"
+            android:text="자리 예약하기" />
+
+    </LinearLayout>
+
+</LinearLayout>
+
+<<⭐⭐⭐WebView1.java⭐⭐⭐>>
+// 웹뷰를 위한 액티비티 입니다. 숙명도서관 홈페이지 버튼 클릭 시 액티비티 전환이 되면서 웹뷰가 뜹니다!
+package com.example.a6_1_1reservationsite;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Bundle;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+
+public class WebView1 extends AppCompatActivity {
+
+    private WebView smu_webview; // 웹뷰 선언
+    private WebSettings smu_webviewSetting; //웹뷰세팅
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_web_view1);
+
+        smu_webview = (WebView) findViewById(R.id.smu_webview);
+
+
+        smu_webview.setWebViewClient(new WebViewClient());
+        smu_webviewSetting = smu_webview.getSettings();
+        smu_webviewSetting.setJavaScriptEnabled(true);
+        smu_webviewSetting.setLoadWithOverviewMode(true);
+        smu_webviewSetting.setUseWideViewPort(true);
+        smu_webviewSetting.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.SINGLE_COLUMN);
+        smu_webviewSetting.setCacheMode(WebSettings.LOAD_NO_CACHE);
+        smu_webviewSetting.setDomStorageEnabled(true);
+        smu_webview.loadUrl("https://www.youtube.com/watch?v=R7xt81O17Ew");
+    }
+}
+
+<<⭐⭐⭐activity_web_view1.xml⭐⭐⭐>> //웹뷰가 표시될 xml 레이아웃입니다.
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+
+    <WebView
+        android:id="@+id/smu_webview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        />
+</LinearLayout>
