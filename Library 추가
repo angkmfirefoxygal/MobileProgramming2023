@@ -293,6 +293,80 @@ public class SMULib_Activity extends AppCompatActivity {
             return super.onOptionsItemSelected(item);
     }
 }
+⭐⭐⭐ReservationActivity.java⭐⭐⭐
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Bundle;
+// MainActivity.java
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.GridView;
+import android.widget.Toast;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class ReservationActivity extends AppCompatActivity {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_reservation);
+
+        Bundle extras = getIntent().getExtras();
+        String date = extras.getString("date");
+        String name = extras.getString("name");
+        getSupportActionBar().setTitle(date + " " + name);
+
+        GridView gridView = findViewById(R.id.gridView);
+        String[] seats = new String[36];
+        for (int i = 0; i < 36; i++) {
+            seats[i] = String.valueOf(i + 1);
+        }
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, seats);
+        gridView.setAdapter(adapter);
+
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                new AlertDialog.Builder(ReservationActivity.this)
+                        .setTitle("자리 예약")
+                        .setMessage((position + 1) + "번 자리를 예약하시겠습니까?")
+                        .setPositiveButton("확인", (dialog, which) -> {
+                            Intent intent = new Intent(ReservationActivity.this, Check_reservation.class);
+                            intent.putExtra("seatNumber", position + 1);
+                            extras.putString("date", date);
+                            extras.putString("name", name);
+                            intent.putExtras(extras);
+                            startActivity(intent);
+                        })
+                        .setNegativeButton("취소", null)
+                        .show();
+            }
+        });
+    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.actionbar_actions, menu) ;
+
+        return true ;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.back){
+            startActivity(new Intent(ReservationActivity.this, SMULib_Activity.class));
+            return true;
+        }
+        else
+            return super.onOptionsItemSelected(item);
+    }
+}
 ⭐⭐⭐Check_reservation.java⭐⭐⭐
 package smu.ai.final_project;
 
