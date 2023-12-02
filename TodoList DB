@@ -1,0 +1,583 @@
+<<⭐⭐⭐⭐⭐⭐build.gradle.kts(Module:app) 에 추가해주세요.⭐⭐⭐⭐⭐⭐>>
+
+dependencies {
+
+    implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation("com.google.android.material:material:1.10.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    implementation("androidx.legacy:legacy-support-v4:1.0.0") //이 부분만 추가
+    testImplementation("junit:junit:4.13.2")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+}
+
+<<⭐⭐⭐⭐⭐⭐TodoActivity.java⭐⭐⭐⭐⭐⭐>>
+//패키지 각자 변경, 액티비티로 생성해주세요(xml 같이 생성되도록)
+
+package com.example.acivitychange;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Bundle;
+import androidx.fragment.app.Fragment;
+
+import android.content.Context;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+
+
+public class TodoActivity extends AppCompatActivity {
+    private static final String TAG = "ToDoActivity";
+
+    Fragment mainFragment;
+    EditText inputToDo;
+    Context context;
+
+    public static NoteDatabase noteDatabase = null;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_todo);
+
+        mainFragment = new MainFragment();
+
+        //getSupportFragmentManager 을 이용하여 이전에 만들었던 **FrameLayout**에 `fragment_main.xml`이 추가
+        getSupportFragmentManager().beginTransaction().replace(R.id.container, mainFragment).commit();
+
+        Button saveButton = findViewById(R.id.saveButton);
+        saveButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view){
+
+                saveToDo();
+
+                Toast.makeText(getApplicationContext(),"추가되었습니다.",Toast.LENGTH_SHORT).show();
+
+            }
+        });
+        openDatabase();
+    }
+    private void saveToDo(){
+        inputToDo = findViewById(R.id.inputToDo);
+
+        //EditText에 적힌 글을 가져오기
+        String todo = inputToDo.getText().toString();
+
+        //테이블에 값을 추가하는 sql구문 insert...
+        String sqlSave = "insert into " + NoteDatabase.TABLE_NOTE + " (TODO) values (" +
+                "'" + todo + "')";
+
+        //sql문 실행
+        NoteDatabase database = NoteDatabase.getInstance(context);
+        database.execSQL(sqlSave);
+
+        //저장과 동시에 EditText 안의 글 초기화
+        inputToDo.setText("");
+    }
+
+
+    public void openDatabase() {
+        // open database
+        if (noteDatabase != null) {
+            noteDatabase.close();
+            noteDatabase = null;
+        }
+
+        noteDatabase = NoteDatabase.getInstance(this);
+        boolean isOpen = noteDatabase.open();
+        if (isOpen) {
+            Log.d(TAG, "Note database is open.");
+        } else {
+            Log.d(TAG, "Note database is not open.");
+        }
+    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (noteDatabase != null) {
+            noteDatabase.close();
+            noteDatabase = null;
+        }
+    }
+}
+
+<<⭐⭐⭐⭐⭐⭐activity_todo.xml⭐⭐⭐⭐⭐⭐>>
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/inputToDo"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:ems="10"
+            android:gravity="start|top"
+            android:hint="할 일을 입력하세요."
+            android:inputType="textMultiLine" />
+
+        <Button
+            android:id="@+id/saveButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="5"
+            android:text="저장"
+            app:backgroundTint="?android:attr/colorActivatedHighlight" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="685dp">
+
+    </FrameLayout>
+
+</LinearLayout>
+
+<<⭐⭐⭐⭐⭐⭐Note.java⭐⭐⭐⭐⭐⭐>>
+package com.example.acivitychange; //각자 수정
+
+public class Note {
+
+    int _id;
+    String todo;
+
+    public Note(int _id, String todo){
+        this._id = _id;
+        this.todo = todo;
+    }
+
+    public int get_id() {
+        return _id;
+    }
+
+    public void set_id(int _id) {
+        this._id = _id;
+    }
+
+    public String getTodo() {
+        return todo;
+    }
+
+    public void setTodo(String todo) {
+        this.todo = todo;
+    }
+}
+
+<<⭐⭐⭐⭐⭐⭐NoteAdapter.java⭐⭐⭐⭐⭐⭐>>
+package com.example.acivitychange; //각자수정
+
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.LinearLayout;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.ArrayList;
+
+
+public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.ViewHolder> {
+    private static final String TAG = "NoteAdapter";
+
+    //todolist아이템이 들어갈 배열
+    ArrayList<Note> items = new ArrayList<>();
+
+
+
+    //todo_item.xml을 인플레이션
+    @NonNull
+    @Override
+    public NoteAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+        View itemView = inflater.inflate(R.layout.todo_item, parent, false);
+
+
+        return new ViewHolder(itemView);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull NoteAdapter.ViewHolder holder, int position) {
+        Note item = items.get(position);
+        holder.setItem(item);
+        holder.setLayout();
+    }
+
+    @Override
+    public int getItemCount() {
+        return items.size();
+    }
+
+
+    //ViewHolder의 역할을 하는 클래스
+    static class ViewHolder extends RecyclerView.ViewHolder{
+
+        LinearLayout layoutTodo;
+        CheckBox checkBox;
+        Button deleteButton;
+
+        public ViewHolder(View itemView){
+            super(itemView);
+
+            layoutTodo = itemView.findViewById(R.id.layoutTodo);
+            checkBox = itemView.findViewById(R.id.checkBox);
+            deleteButton = itemView.findViewById(R.id.deleteButton);
+
+            //버튼 클릭 시 SQLite에서 데이터 삭제
+            deleteButton.setOnClickListener(new View.OnClickListener() {
+
+
+                @Override
+                public void onClick(View v) {
+                    //CheckBox의 String 가져오기
+                    String TODO = (String) checkBox.getText();
+                    deleteToDo(TODO);
+                    Toast.makeText(v.getContext(),"삭제되었습니다.",Toast.LENGTH_SHORT).show();
+                }
+
+
+                Context context;
+
+                private void deleteToDo(String TODO){
+                    //테이블을 삭제하는 sql문 delete...
+                    String deleteSql = "delete from " + NoteDatabase.TABLE_NOTE + " where " + "  TODO = '" + TODO+"'";
+                    NoteDatabase database = NoteDatabase.getInstance(context);
+                    //삭제하는 sql문 실행
+                    database.execSQL(deleteSql);
+                }
+            });
+
+
+        }
+        //EditText에서 입력받은 checkBox의 텍스트를 checkBox의 Text에 넣을 수 있게 하는 메서드
+        public void setItem(Note item){
+            checkBox.setText(item.getTodo());
+        }
+
+        //아이템들을 담은 LinearLayout을 보여주게하는 메서드
+        public void setLayout(){
+            layoutTodo.setVisibility(View.VISIBLE);
+        }
+    }
+
+    //배열에 있는 item들을 가리킴
+    public void setItems(ArrayList<Note> items){
+        this.items = items;
+    }
+
+}
+<<⭐⭐⭐⭐⭐⭐NoteDatabase⭐⭐⭐⭐⭐⭐>>
+
+package com.example.acivitychange;
+
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
+
+
+public class NoteDatabase {
+    private static final String TAG = "NoteDatabase";
+
+    private static NoteDatabase database;
+    public static String DATABASE_NAME = "todo.db";
+    public static String TABLE_NOTE = "NOTE";
+    public static int DATABASE_VERSION = 1;
+
+    private Context context;
+    private SQLiteDatabase db;
+    private DatabaseHelper dbHelper;
+
+
+    private NoteDatabase(Context context){
+        this.context = context;
+    }
+
+    public static NoteDatabase getInstance(Context context){
+        if(database == null){
+            database = new NoteDatabase(context);
+        }
+
+        return database;
+    }
+
+    //이후 리스트를 표시할 때 현지위치를 나타내는 커서역할을 함
+    public Cursor rawQuery(String SQL){
+
+        Cursor c1 = null;
+        try{
+            c1 = db.rawQuery(SQL,null);
+        } catch (Exception ex){
+            Log.e(TAG,"Exception in rawQuery",ex);
+        }
+
+        return c1;
+    }
+
+    //sql문을 실행시키는 역할을 함
+    public boolean execSQL(String SQL) {
+
+        try {
+            Log.d(TAG, "SQL : " + SQL);
+            db.execSQL(SQL);
+        } catch(Exception ex) {
+            Log.e(TAG, "Exception in execSQL", ex);
+            return false;
+        }
+        return true;
+    }
+
+    private class DatabaseHelper extends SQLiteOpenHelper {
+        public DatabaseHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version){
+            super(context, name,factory,version);
+        }
+
+
+        @Override
+        public void onCreate(SQLiteDatabase db) {
+
+
+            //테이블초기화
+            String DROP_SQL = "drop table if exists " +TABLE_NOTE;
+
+            try {
+                db.execSQL(DROP_SQL);
+
+            } catch (Exception ex){
+                Log.e(TAG, "Exception in DROP_SQL", ex);
+            }
+
+            //테이블 생섣
+            String CREATE_SQL = "create table " + TABLE_NOTE + "("
+                    + " _id integer NOT NULL PRIMARY KEY AUTOINCREMENT, "
+                    + "  TODO TEXT DEFAULT '' "
+                    + ")";
+            try{
+                db.execSQL(CREATE_SQL);
+            } catch (Exception ex){
+                Log.e(TAG,"Exception in CREATE_SQL", ex);
+            }
+
+            //테이블의 인덱스 붙이기
+            String CREATE_INDEX_SQL = "create index " + TABLE_NOTE + "_IDX ON " + TABLE_NOTE + "("
+                    + "_id"
+                    + ")";
+            try{
+                db.execSQL(CREATE_INDEX_SQL);
+            } catch (Exception ex){
+                Log.e(TAG, "Exception in CREATE_INDEX_SQL",ex);
+            }
+        }
+
+        @Override
+        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+
+        }
+
+    }
+
+    //데이터베이스 열기
+    public boolean open(){
+
+        dbHelper = new DatabaseHelper(context, DATABASE_NAME, null, DATABASE_VERSION);
+        db = dbHelper.getWritableDatabase();
+
+        return true;
+    }
+
+    //데이터베이스 닫기
+    public void close(){
+        db.close();
+        database = null;
+    }
+
+
+}
+
+<<⭐⭐⭐⭐⭐⭐MainFragment.java⭐⭐⭐⭐⭐⭐>>
+//Fragment 생성해주세요 <New - Fragment - Fragment(Blank)>
+package com.example.acivitychange;
+
+import android.content.Context;
+import android.database.Cursor;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.ArrayList;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+
+public class MainFragment extends Fragment {
+    private static final String TAG = "MainFragment";
+
+    RecyclerView recyclerView;
+    NoteAdapter adapter;
+    Context context;
+
+    SwipeRefreshLayout swipeRefreshLayout;
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+        //fragment_main에 인플레이션을 함
+        ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_main, container, false);
+
+        initUI(rootView);
+
+        loadNoteListData();
+
+
+        //당겨서 새로고침
+        swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.refresh_layout);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                loadNoteListData();
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
+
+        return rootView;
+    }
+
+    private void initUI(ViewGroup rootView){
+
+        //recyclerView연결
+        recyclerView = rootView.findViewById(R.id.recyclerView);
+
+        //LinearLayoutManager을 이용하여 recyclerView설정
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+        recyclerView.setLayoutManager(layoutManager);
+
+        //어댑터 연결결
+        adapter = new NoteAdapter();
+        recyclerView.setAdapter(adapter);
+
+    }
+
+    public int loadNoteListData(){
+
+        //데이터를 가져오는 sql문 select... (id의 역순으로 정렬)
+        String loadSql = "select _id, TODO from " + NoteDatabase.TABLE_NOTE + " order by _id desc";
+
+        int recordCount = -1;
+        NoteDatabase database = NoteDatabase.getInstance(context);
+
+        if(database != null){
+            //cursor를 객체화하여 rawQuery문 저장
+            Cursor outCursor = database.rawQuery(loadSql);
+
+            recordCount = outCursor.getCount();
+
+            //_id, TODO가 담겨질 배열 생성
+            ArrayList<Note> items = new ArrayList<>();
+
+            //for문을 통해 하나하나 추가
+            for(int i = 0; i < recordCount; i++){
+                outCursor.moveToNext();
+
+                int _id = outCursor.getInt(0);
+                String todo = outCursor.getString(1);
+                items.add(new Note(_id,todo));
+            }
+            outCursor.close();
+
+            //어댑터에 연결 및 데이터셋 변경
+            adapter.setItems(items);
+            adapter.notifyDataSetChanged();
+        }
+
+        return recordCount;
+    }
+}
+
+<<⭐⭐⭐⭐⭐⭐fragment_main.xml⭐⭐⭐⭐⭐⭐>>
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/refresh_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+</LinearLayout>
+
+<<⭐⭐⭐⭐⭐⭐todo_item.xml⭐⭐⭐⭐⭐⭐>>
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="4dp"
+    android:layout_marginBottom="4dp"
+    android:paddingLeft="4dp"
+    android:paddingTop="8dp"
+    android:paddingRight="4dp"
+    android:paddingBottom="4dp"
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="5dp">
+
+    <LinearLayout
+        android:id="@+id/layoutTodo"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/black"
+        android:orientation="horizontal">
+
+        <CheckBox
+            android:id="@+id/checkBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/deleteButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_weight="7"
+            android:text="X"
+            app:backgroundTint="@android:color/holo_orange_light" />
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
+
