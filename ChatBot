@@ -560,4 +560,40 @@ public class ChatActivity extends AppCompatActivity {
             android:text="Chat" />
     </LinearLayout>
 
+
+
+<<⭐⭐⭐res/snow_study.xml⭐⭐⭐>>
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+    <translate
+        android:duration="8200"
+        android:fromXDelta="-80%p"
+        android:toXDelta="100%p"
+        android:repeatCount="infinite"
+        android:repeatMode="restart" />
+</set>
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+<<⭐⭐⭐res/snow_walking.xml⭐⭐⭐>>
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:fillAfter="true"
+    android:interpolator="@android:anim/linear_interpolator">
+
+    <translate
+        android:duration="7000"
+        android:fromXDelta="-20%p"
+        android:toXDelta="100%p"
+        android:repeatCount="infinite"
+        android:repeatMode="restart" />
+
+    <translate
+        android:duration="500"
+        android:fromYDelta="0%p"
+        android:toYDelta="10%p"
+        android:repeatCount="infinite"
+        android:repeatMode="reverse" />
+
+</set>
