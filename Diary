@@ -77,26 +77,33 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
 import static android.os.Environment.DIRECTORY_PICTURES;
+
 public class DiaryActivity extends AppCompatActivity {
 
     EditText diary;
-    String diary_context;
-    Button savebtn, Takepicbtn, Callpicbtn;
+    String diary_content;
+    Button savebtn, Takepicbtn, Callpicbtn, Calldiarybtn;
     ImageView ivPicture;
 
     private static final int REQUEST_IMAGE_CAPTURE = 672;
     private String imageFilePath;
     private Uri photoUri;
     private MediaScanner mMediaScanner;
+    static String foldername, filename;
+    static String filePath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,7 +111,8 @@ public class DiaryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_diary);
 
         Bundle extras = getIntent().getExtras();
-        getSupportActionBar().setTitle( extras.getString("date") + " diary"); // main에서 받아온 date
+        String today_date = extras.getString("date");
+        getSupportActionBar().setTitle( today_date + " diary"); // main에서 받아온 date 액션바 이름으로
 
         Button button1 = findViewById(R.id.button1); //xml에서 생성한 id 매치
         Button button2 = findViewById(R.id.button2);
@@ -120,18 +128,14 @@ public class DiaryActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
         button2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(DiaryActivity.this, MainActivity.class);
 
                 startActivity(intent);
-
             }
         });
-
-
         button3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -143,11 +147,27 @@ public class DiaryActivity extends AppCompatActivity {
 
         diary = (EditText) findViewById(R.id.editText);
         savebtn = (Button) findViewById(R.id.savebutton);
+        Calldiarybtn = (Button) findViewById(R.id.calldiarybutton);
 
+        // diry 파일 저장될 디렉토리 경로
+        foldername = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() +"/Diary";
+        // diary 파일 이름 - 해당 날짜로 지정
+        filename = today_date + " diary" + ".txt";
+        filePath = foldername + "/" + filename;
+
+        // 일기 저장
         savebtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                diary_context = diary.getText().toString();
+                diary_content = diary.getText().toString() + "\n";
+                WriteTextFile(foldername, filename, diary_content);
+        }
+        });
+        // 일기 불러오기
+        Calldiarybtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mOnFileRead(v);
             }
         });
 
@@ -158,8 +178,10 @@ public class DiaryActivity extends AppCompatActivity {
         ivPicture = (ImageView) findViewById(R.id.ivPicture);
         Callpicbtn = (Button) findViewById(R.id.btncallpic);
 
+        // 권한 물어보는 설정
         ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.CAMERA}, 1);
 
+        // 사진 찍기 버튼 클릭
         Takepicbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -181,6 +203,7 @@ public class DiaryActivity extends AppCompatActivity {
                 }
             }
         });
+        // 사진 불러오기 버튼 클릭
         Callpicbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -189,9 +212,50 @@ public class DiaryActivity extends AppCompatActivity {
                 startActivityForResult(intent, 1);
             }
         });
-
     }
 
+    // 텍스트 파일 내용 불러오기
+    public void mOnFileRead(View v){
+        String read = ReadTextFile(filePath);
+        diary.setText(read);
+    }
+    // 텍스트 파일 읽기
+    public String ReadTextFile(String path){
+        StringBuffer strBuffer = new StringBuffer();
+        try {
+            InputStream is = new FileInputStream(path);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+            String line = "";
+            while ((line = reader.readLine()) != null) {
+                strBuffer.append(line + "\n");
+            }
+            reader.close();
+            is.close();
+        }catch (IOException e){
+            e.printStackTrace();
+            return "";
+        }
+        return strBuffer.toString();
+    }
+
+    // diary 내용 txt 파일로 저장
+    public void WriteTextFile(String foldername, String filename, String diary_content){
+        try{
+            File dir = new File (foldername);
+            if(!dir.exists()){
+                dir.mkdir();  // 디렉터리가 없으면 만듦
+            }
+            // FileOutpitStream 객체를 통해 파일 생성, 내용 작성 -> 내용 append 하기 위해 true
+            FileOutputStream fos = new FileOutputStream(foldername+"/"+filename, true);
+            // 문자열을 바이트배열로 변환해서 파일에 저장
+            fos.write(diary_content.getBytes());
+            fos.close();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    // 이미지 파일 이름 만듦
     private File createImageFile() throws IOException{
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "TEST_" + timeStamp + "_";
@@ -205,6 +269,7 @@ public class DiaryActivity extends AppCompatActivity {
         return image;
     }
 
+    // 사진 저장, 불러오기 메소드
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -283,13 +348,13 @@ public class DiaryActivity extends AppCompatActivity {
         matrix.postRotate(degree);
         return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
     }
+    //액션바
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.actionbar_actions, menu) ;
 
         return true ;
     }
-
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.back){
@@ -388,6 +453,13 @@ public class MediaScanner {
         app:layout_constraintTop_toBottomOf="@id/linearLayout1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
+
+        <Button
+            android:id="@+id/calldiarybutton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="일기 불러오기" />
 
         <Button
             android:id="@+id/savebutton"
