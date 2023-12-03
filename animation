@@ -9,7 +9,7 @@ dependencies {
 
 
 
-<<⭐⭐⭐res/anim/snow_study.xml⭐⭐⭐>>  (res > new > android resource directory > 리소스 타입 anim)
+<<⭐⭐⭐res/snow_study.xml⭐⭐⭐>>
 <?xml version="1.0" encoding="utf-8"?>
 <set xmlns:android="http://schemas.android.com/apk/res/android">
     <translate
@@ -19,21 +19,15 @@ dependencies {
         android:repeatCount="infinite"
         android:repeatMode="restart" />
 </set>
+</androidx.constraintlayout.widget.ConstraintLayout>
 
 
 
-<<⭐⭐⭐res/anim/snow_walking.xml⭐⭐⭐>>
+<<⭐⭐⭐res/snow_walking.xml⭐⭐⭐>>
 <?xml version="1.0" encoding="utf-8"?>
 <set xmlns:android="http://schemas.android.com/apk/res/android"
     android:fillAfter="true"
     android:interpolator="@android:anim/linear_interpolator">
-
-    <translate
-        android:duration="7000"
-        android:fromXDelta="-20%p"
-        android:toXDelta="100%p"
-        android:repeatCount="infinite"
-        android:repeatMode="restart" />
 
     <translate
         android:duration="500"
@@ -43,9 +37,6 @@ dependencies {
         android:repeatMode="reverse" />
 
 </set>
-
-
-
 
 <<⭐⭐⭐activity_library.xml⭐⭐⭐>>
 
@@ -67,6 +58,7 @@ dependencies {
         android:id="@+id/snow_ani"
         android:layout_width="120dp"
         android:layout_height="120dp"
+        android:layout_gravity="center_horizontal"
         android:src="@drawable/snow_ani"/>
 
 
@@ -132,6 +124,83 @@ dependencies {
 
 
 <<⭐⭐⭐Library.java⭐⭐⭐>>
+package com.example.acivitychange;
 
-public cla가
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.Button;
+import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.bumptech.glide.Glide;
+
+
+public class Library extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_library);
+
+
+        Animation animation = AnimationUtils.loadAnimation(this, R.anim.snow_walking);
+        ImageView snow_walking = findViewById(R.id.snow_ani);
+        Glide.with(this).load(R.drawable.snow_ani).into(snow_walking);
+        snow_walking.startAnimation(animation);
+
+        ImageView snow_study = findViewById(R.id.study_with_snow);
+        Animation animation2 = AnimationUtils.loadAnimation(this, R.anim.snow_study);
+        snow_study.startAnimation(animation2);
+
+
+
+
+
+        //도서관 이동버튼
+        Button button1 = findViewById(R.id.smu_library);
+        Button button2 = findViewById(R.id.ys_library);
+
+        Bundle extras = getIntent().getExtras();
+        getSupportActionBar().setTitle( extras.getString("date") + "Library");
+
+
+
+        button1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Library.this, SMULib_Activity.class);
+                startActivity(intent);
+            }
+        });
+
+        button2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Library.this, YSLib_Activity.class);
+                startActivity(intent);
+            }
+        });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.actionbar_actions, menu) ;
+
+        return true ;
+    }
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.back) {
+            startActivity(new Intent(Library.this, MainActivity.class));
+            return true;
+        } else
+            return super.onOptionsItemSelected(item);
+    }
+}
