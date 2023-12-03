@@ -524,7 +524,7 @@ public class ChatActivity extends AppCompatActivity {
 
             </RelativeLayout>
         </RelativeLayout>
-    </LinearLayout>
+    </LinearLayout></androidx.constraintlayout.widget.ConstraintLayout>
 
 
 
